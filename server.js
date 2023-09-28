@@ -27,21 +27,50 @@ con.connect(function (err) {
 })
 
 app.get('/top5films', (req, res) => {
-  con.query('Select film.title as FilmTitle From film Join inventory on film.film_id = inventory.film_id Join rental on inventory.inventory_id = rental.inventory_id Group By FilmTitle Order By COUNT(rental.rental_id) Desc Limit 5;', (err, rows) => {
+  con.query('SELECT film.film_id, film.title AS FilmTitle, film.description, film.release_year, film.language_id, film.rental_duration, film.rental_rate, film.length, film.rating, film.special_features, COUNT(rental.rental_id) AS RentalCount FROM film JOIN inventory ON film.film_id = inventory.film_id JOIN rental ON inventory.inventory_id = rental.inventory_id GROUP BY film.film_id, film.title, film.description, film.release_year, film.language_id, film.rental_duration, film.rental_rate, film.length, film.rating, film.special_features ORDER BY RentalCount DESC LIMIT 5;', (err, rows) => {
     if (err) throw err
     res.json(rows)
   })
 })
 
 
-let postData = null
-app.post('/film', (req, res) => {
-  postData = req.body;
-  res.status(200).json({ message: 'Data Receieved'});
+app.post('/actordetail', (req, res) => {
+  const id = req.body.id
+  con.query(`SELECT actor.actor_id, actor.first_name, actor.last_name, film.film_id, film.title AS film_title, film.description, film.release_year, film.rating FROM actor JOIN film_actor ON actor.actor_id = film_actor.actor_id JOIN film ON film_actor.film_id = film.film_id WHERE actor.actor_id = ${id} ORDER BY film.rating DESC LIMIT 5;`, (err, rows) => {
+    if (err) throw err
+    console.log(rows)
+    res.json(rows)
+  })
 })
 
 app.get('/top5actors', (req, res) => {
   con.query('SELECT actor.actor_id, actor.first_name, actor.last_name, COUNT(film.film_id) AS film_count FROM actor JOIN film_actor ON actor.actor_id = film_actor.actor_id JOIN film ON film_actor.film_id = film.film_id GROUP BY actor.actor_id, actor.first_name, actor.last_name ORDER BY film_count DESC LIMIT 5;', (err, rows) => {
+    if (err) throw err
+    res.json(rows)
+  })
+})
+
+app.get('/customers', (req, res) => {
+  con.query('Select * From Customer;', (err, rows) => {
+    if (err) throw err
+    res.json(rows)
+  })
+})
+
+app.post('/customername', (req, res) => {
+  const name = req.body.name;
+  console.log(name)
+  con.query(`Select * from Customer Where customer.first_name Like "%${name}%" OR customer.last_name Like "%${name}%";`, (err, rows) => {
+    if (err) throw err
+    res.json(rows)
+  })
+})
+
+
+app.post('/customerid', (req, res) => {
+  const id = req.body.id;
+  console.log(id)
+  con.query(`Select * from Customer Where customer.customer_id = ${id};`, (err, rows) => {
     if (err) throw err
     res.json(rows)
   })
