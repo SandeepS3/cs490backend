@@ -36,7 +36,7 @@ app.get('/top5films', (req, res) => {
 
 app.post('/actordetail', (req, res) => {
   const id = req.body.id
-  con.query(`SELECT actor.actor_id, actor.first_name, actor.last_name, film.film_id, film.title AS film_title, film.description, film.release_year, film.rating FROM actor JOIN film_actor ON actor.actor_id = film_actor.actor_id JOIN film ON film_actor.film_id = film.film_id WHERE actor.actor_id = ${id} ORDER BY film.rating DESC LIMIT 5;`, (err, rows) => {
+  con.query(`SELECT film.film_id, film.title, film.description, film.release_year, film.language_id, film.original_language_id, film.rental_duration, film.rental_rate, film.length, film.replacement_cost, film.rating, film.special_features FROM film JOIN film_actor ON film.film_id = film_actor.film_id WHERE film_actor.actor_id = ${id} GROUP BY film.film_id ORDER BY COUNT(*) DESC LIMIT 5;`, (err, rows) => {
     if (err) throw err
     console.log(rows)
     res.json(rows)
