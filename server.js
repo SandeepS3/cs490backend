@@ -51,7 +51,7 @@ app.get('/top5actors', (req, res) => {
 })
 
 app.get('/customers', (req, res) => {
-  con.query('Select * From Customer;', (err, rows) => {
+  con.query('SELECT * FROM customer WHERE active = 1;', (err, rows) => {
     if (err) throw err
     res.json(rows)
   })
@@ -59,7 +59,7 @@ app.get('/customers', (req, res) => {
 
 app.post('/customername', (req, res) => {
   const name = req.body.name;
-  con.query(`Select * from Customer Where customer.first_name Like "%${name}%" OR customer.last_name Like "%${name}%";`, (err, rows) => {
+  con.query(`Select * from Customer Where customer.first_name Like "%${name}%" AND active = 1 OR customer.last_name Like "%${name}%" AND active = 1;`, (err, rows) => {
     if (err) throw err
     res.json(rows)
   })
@@ -68,7 +68,7 @@ app.post('/customername', (req, res) => {
 
 app.post('/customerid', (req, res) => {
   const id = req.body.id;
-  con.query(`Select * from Customer Where customer.customer_id = ${id};`, (err, rows) => {
+  con.query(`Select * from Customer Where customer.customer_id = ${id} AND active = 1;`, (err, rows) => {
     if (err) throw err
     res.json(rows)
   })
@@ -97,3 +97,52 @@ app.post('/genremovie', (req, res) => {
     res.json(rows)
   })
 })
+
+app.post('/moviedetail', (req, res) => {
+  const film = req.body.film;
+  con.query(`SELECT * FROM film WHERE title = '${film}';`, (err, rows) => {
+    if (err) throw err
+    res.json(rows)
+  })
+})
+
+app.post('/customerdetails', (req, res) => {
+  const customerdetails = req.body.customerdetails;
+  con.query(`SELECT * FROM customer WHERE customer_id = ${customerdetails};`, (err, rows) => {
+    if (err) throw err
+    res.json(rows)
+  })
+})
+
+
+app.post('/addcustomer', (req, res) => {
+  const fname = req.body.firstname
+  const lname = req.body.lastname
+  const email = req.body.email
+  const addressid = req.body.addressid
+  con.query(`INSERT INTO customer (store_id, first_name, last_name, email, address_id, active, create_date, last_update) VALUES ( 1, '${fname}', '${lname}', '${email}', ${addressid}, 1, NOW(), NOW() );`, (err, rows) => {
+    if (err) alert(err.json)
+    res.json("Added User")
+  })
+})
+
+app.post('/deletecustomer', (req, res) => {
+  const customerid = req.body.customerid
+  con.query(`UPDATE customer SET active = 0 WHERE customer_id = ${customerid}; `, (err, rows) => {
+    if (err) alert(err.json)
+    res.json("Deleted User")
+  })
+})
+
+// app.post('/rentmovie', (req, res) => {
+//   const customerid = req.body.customerid;
+//   const movieid = req.body.movieid;
+//   const jsonObject = JSON.parse(req.body.customerid);
+//   const intValue = parseInt(jsonObject.number);
+//   console.log(intValue)
+//   console.log(req.body)
+//   con.query(`SET @film_id := ${movieid}; SET @customer_id := ${customerid}; SET @staff_id := 1; INSERT INTO rental (rental_date, inventory_id, customer_id, staff_id, return_date) VALUES (NOW(), (SELECT inventory.inventory_id FROM inventory WHERE inventory.film_id = @film_id LIMIT 1), @customer_id, @staff_id, NULL); SELECT 'Rental successful. Rental ID: ', LAST_INSERT_ID() AS rental_id;`, (err, rows) => {
+//     if (err) throw err
+//     res.json(rows)
+//   })
+// })
