@@ -129,18 +129,20 @@ app.post('/addcustomer', (req, res) => {
 app.post('/deletecustomer', (req, res) => {
   const customerid = req.body.customerid
   con.query(`UPDATE customer SET active = 0 WHERE customer_id = ${customerid}; `, (err, rows) => {
-    if (err) alert(err.json)
+    if (err) throw err
     res.json("Deleted User")
   })
 })
 
+app.get('/rentedfilms', (req, res) => {
+  con.query(`SELECT DISTINCT customer.customer_id, customer.first_name, customer.last_name FROM customer JOIN rental ON customer.customer_id = rental.customer_id JOIN inventory ON rental.inventory_id = inventory.inventory_id JOIN film ON inventory.film_id = film.film_id;`, (err, rows) => {
+    if (err) throw err
+    res.json(rows)
+  })
+})
 // app.post('/rentmovie', (req, res) => {
 //   const customerid = req.body.customerid;
 //   const movieid = req.body.movieid;
-//   const jsonObject = JSON.parse(req.body.customerid);
-//   const intValue = parseInt(jsonObject.number);
-//   console.log(intValue)
-//   console.log(req.body)
 //   con.query(`SET @film_id := ${movieid}; SET @customer_id := ${customerid}; SET @staff_id := 1; INSERT INTO rental (rental_date, inventory_id, customer_id, staff_id, return_date) VALUES (NOW(), (SELECT inventory.inventory_id FROM inventory WHERE inventory.film_id = @film_id LIMIT 1), @customer_id, @staff_id, NULL); SELECT 'Rental successful. Rental ID: ', LAST_INSERT_ID() AS rental_id;`, (err, rows) => {
 //     if (err) throw err
 //     res.json(rows)
