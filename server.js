@@ -140,11 +140,12 @@ app.get('/rentedfilms', (req, res) => {
     res.json(rows)
   })
 })
-// app.post('/rentmovie', (req, res) => {
-//   const customerid = req.body.customerid;
-//   const movieid = req.body.movieid;
-//   con.query(`SET @film_id := ${movieid}; SET @customer_id := ${customerid}; SET @staff_id := 1; INSERT INTO rental (rental_date, inventory_id, customer_id, staff_id, return_date) VALUES (NOW(), (SELECT inventory.inventory_id FROM inventory WHERE inventory.film_id = @film_id LIMIT 1), @customer_id, @staff_id, NULL); SELECT 'Rental successful. Rental ID: ', LAST_INSERT_ID() AS rental_id;`, (err, rows) => {
-//     if (err) throw err
-//     res.json(rows)
-//   })
-// })
+
+
+app.post('/rentmovie', (req, res) => {
+  const customerid = req.body.customerid;
+  con.query(`INSERT INTO rental (rental_date, inventory_id, customer_id, staff_id) VALUES ( NOW(), 1, ${customerid}, 1);`, (err, rows) => {
+    if (err) throw err
+    res.json("Rented Film!")
+  })
+})
